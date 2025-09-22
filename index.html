@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Greeloc App Interface</title>
+    <title>Greeloc App Prototype</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
             --color-primary: #508C5C; /* Earthy Green */
@@ -12,7 +13,7 @@
             --color-accent: #FDBE2A; /* Sun Yellow */
         }
         body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            font-family: 'Poppins', sans-serif;
             margin: 0;
             display: flex;
             justify-content: center;
@@ -22,21 +23,81 @@
             color: var(--color-text);
         }
         .app-container {
-            width: 375px; /* Standard mobile phone width */
-            height: 667px; /* Standard mobile phone height */
+            width: 375px;
+            height: 667px;
             background-color: white;
             border-radius: 20px;
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
             overflow: hidden;
             position: relative;
         }
+
+        /* Login Screen Styles */
+        .login-screen {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100%;
+            background-color: var(--color-background);
+            padding: 20px;
+            text-align: center;
+            transition: transform 0.5s ease-in-out;
+        }
+        .login-screen.hidden {
+            transform: translateY(-100%);
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+        }
+        .login-screen h1 {
+            color: var(--color-primary);
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+        .login-screen p {
+            color: var(--color-text);
+            margin-bottom: 30px;
+            font-weight: 400;
+        }
+        .login-button {
+            width: 80%;
+            padding: 15px 0;
+            margin: 10px 0;
+            border: none;
+            border-radius: 30px;
+            font-size: 1.1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        .login-button.vendor {
+            background-color: var(--color-primary);
+            color: white;
+        }
+        .login-button.producer {
+            background-color: var(--color-text);
+            color: white;
+        }
+        .login-button:hover {
+            opacity: 0.9;
+        }
+
+        /* Main App Interface Styles */
+        .main-app {
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
         .header {
             display: flex;
             justify-content: space-between;
             align-items: center;
             padding: 20px;
-            background-color: var(--color-background);
-            border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+            background-color: white;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+            z-index: 10;
         }
         .header h1 {
             font-size: 1.5em;
@@ -48,12 +109,12 @@
             height: 40px;
             background-color: var(--color-primary);
             border-radius: 50%;
+            cursor: pointer;
         }
         .map-section {
             position: relative;
-            width: 100%;
-            height: calc(100% - 100px); /* Adjusting for header and bottom panel */
-            background-image: url('https://via.placeholder.com/600x800/e0e0e0/808080?text=Custom+Styled+Map'); /* A placeholder for a beautiful map */
+            flex-grow: 1;
+            background-image: url('https://via.placeholder.com/600x800/e0e0e0/808080?text=Custom+Styled+Map');
             background-size: cover;
             background-position: center;
         }
@@ -70,13 +131,11 @@
             border: 3px solid white;
             cursor: pointer;
             transition: transform 0.2s ease-in-out;
+            animation: pulse 1.5s infinite;
         }
         .producer-icon:hover {
             transform: scale(1.1);
         }
-        .producer-icon.fruits { background-color: #FFA500; }
-        .producer-icon.vegetables { background-color: #28a745; }
-
         .producer-icon-inner {
             font-size: 1.5em;
             color: white;
@@ -118,6 +177,7 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
+            font-weight: 400;
         }
         .panel-list li:last-child {
             border-bottom: none;
@@ -128,70 +188,146 @@
             border: none;
             padding: 10px 20px;
             border-radius: 25px;
-            font-weight: bold;
+            font-weight: 600;
             cursor: pointer;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
         }
     </style>
 </head>
 <body>
 
 <div class="app-container">
-    <div class="header">
+    <div class="login-screen">
         <h1>Greeloc</h1>
-        <div class="profile-icon"></div>
+        <p>The fastest way to get local, fresh produce.</p>
+        <button class="login-button vendor" id="loginVendor">Login as Vendor</button>
+        <button class="login-button producer" id="loginProducer">Login as Producer</button>
     </div>
-    <div class="map-section">
-        <div class="producer-icon fruits" style="top: 30%; left: 45%;" data-supplier="The Honest Garden" data-items="Organic Tomatoes - $2/kg, Strawberries - $5/kg">
-            <span class="producer-icon-inner">🍎</span>
+
+    <div class="main-app" style="display:none;">
+        <div class="header">
+            <h1>Greeloc</h1>
+            <div class="profile-icon"></div>
         </div>
-        <div class="producer-icon vegetables" style="top: 60%; left: 20%;" data-supplier="Root & Kindred Farm" data-items="Carrots - $1.50/kg, Kale - $3/bunch">
-            <span class="producer-icon-inner">🥕</span>
+        <div class="map-section" id="map">
+            </div>
+        <div class="bottom-panel" id="bottomPanel">
+            <div class="panel-header" id="panelHeader">
+                <span>Available from Nearby</span>
+            </div>
+            <ul class="panel-list" id="panelList">
+                </ul>
         </div>
-    </div>
-    <div class="bottom-panel" id="bottomPanel">
-        <div class="panel-header" id="panelHeader">
-            <span>Available from Nearby</span>
-        </div>
-        <ul class="panel-list" id="panelList">
-            </ul>
     </div>
 </div>
 
 <script>
-    document.addEventListener('DOMContentLoaded', () => {
-        const icons = document.querySelectorAll('.producer-icon');
-        const bottomPanel = document.getElementById('bottomPanel');
-        const panelHeader = document.getElementById('panelHeader');
-        const panelList = document.getElementById('panelList');
+    // --- Login and App View Logic ---
+    const loginScreen = document.querySelector('.login-screen');
+    const mainApp = document.querySelector('.main-app');
+    const loginButtons = document.querySelectorAll('.login-button');
 
+    loginButtons.forEach(button => {
+        button.addEventListener('click', () => {
+            loginScreen.classList.add('hidden');
+            setTimeout(() => {
+                loginScreen.style.display = 'none';
+                mainApp.style.display = 'flex';
+                // Initialize the map with producers after login
+                generateProducers();
+            }, 500);
+        });
+    });
+
+    // --- Dynamic Producer Generation and Map Logic ---
+    const map = document.getElementById('map');
+    const bottomPanel = document.getElementById('bottomPanel');
+    const panelHeader = document.getElementById('panelHeader');
+    const panelList = document.getElementById('panelList');
+
+    const producerNames = [
+        "The Honest Garden", "Sunita's Micro-Farm", "Urban Sprout",
+        "Community Harvest", "The Humble Acre", "Rohan's Garden",
+        "Backyard Bounty", "GreenThumb Growers", "The Local Patch"
+    ];
+
+    const producerItems = [
+        "Organic Tomatoes (2kg)", "Fresh Strawberries (1kg)", "Lettuce (5 heads)",
+        "Carrots (3kg)", "Zucchini (1kg)", "Spinach (5 bunches)",
+        "Avocados (4 pieces)", "Free-Range Eggs (1 dozen)", "Bell Peppers (6 pieces)"
+    ];
+
+    function getRandomItem(arr) {
+        return arr[Math.floor(Math.random() * arr.length)];
+    }
+
+    function generateProducers() {
+        const numProducers = Math.floor(Math.random() * 5) + 3; // 3 to 7 producers
+        
+        // Clear any existing producers
+        map.innerHTML = '';
+        
+        for (let i = 0; i < numProducers; i++) {
+            const top = Math.random() * 80 + 10;
+            const left = Math.random() * 80 + 10;
+            const supplierName = getRandomItem(producerNames);
+            
+            // Get 2-3 random items for each producer
+            const items = new Set();
+            for (let j = 0; j < Math.floor(Math.random() * 2) + 2; j++) {
+                items.add(getRandomItem(producerItems));
+            }
+            const itemsString = Array.from(items).join(', ');
+
+            const icon = document.createElement('div');
+            icon.classList.add('producer-icon');
+            icon.style.top = `${top}%`;
+            icon.style.left = `${left}%`;
+            icon.dataset.supplier = supplierName;
+            icon.dataset.items = itemsString;
+            icon.innerHTML = `<span class="producer-icon-inner">🌱</span>`;
+            map.appendChild(icon);
+        }
+        
+        // Re-attach event listeners to the newly created icons
+        attachEventListeners();
+    }
+
+    function attachEventListeners() {
+        const icons = document.querySelectorAll('.producer-icon');
         icons.forEach(icon => {
-            icon.addEventListener('click', () => {
-                const supplierName = icon.dataset.supplier;
+            icon.addEventListener('click', (event) => {
+                event.stopPropagation();
+                const supplier = icon.dataset.supplier;
                 const items = icon.dataset.items.split(',').map(item => {
-                    const [name, price] = item.split(' - ');
+                    const [name, quantity] = item.trim().split(/\s+\(([^)]+)\)/);
                     return `
                         <li>
                             <span>${name.trim()}</span>
-                            <button class="buy-button">${price.trim()}</button>
+                            <button class="buy-button">Buy ${quantity || 'Now'}</button>
                         </li>
                     `;
                 }).join('');
 
-                panelHeader.innerHTML = `<span>${supplierName}</span>`;
+                panelHeader.innerHTML = `<span>${supplier}</span>`;
                 panelList.innerHTML = items;
-
                 bottomPanel.classList.add('active');
             });
         });
 
-        // To close the panel, you would add a close button or swipe gesture in a real app
-        // For this demo, clicking outside the panel will close it
-        document.querySelector('.map-section').addEventListener('click', (event) => {
-            if (!event.target.closest('.producer-icon') && bottomPanel.classList.contains('active')) {
+        // Close panel when clicking on the map
+        map.addEventListener('click', (event) => {
+            if (bottomPanel.classList.contains('active')) {
                 bottomPanel.classList.remove('active');
             }
         });
-    });
+    }
+
 </script>
 
 </body>
