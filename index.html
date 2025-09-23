@@ -31,8 +31,8 @@
             overflow: hidden;
             position: relative;
         }
-
-        /* Login Screen Styles */
+        
+        /* --- Login Screen Styles --- */
         .login-screen {
             display: flex;
             flex-direction: column;
@@ -84,7 +84,7 @@
             opacity: 0.9;
         }
 
-        /* Main App Interface Styles */
+        /* --- Main App (Vendor/Map) Interface Styles --- */
         .main-app {
             height: 100%;
             display: flex;
@@ -104,19 +104,30 @@
             font-weight: bold;
             color: var(--color-primary);
         }
-        .header .profile-icon {
-            width: 40px;
-            height: 40px;
-            background-color: var(--color-primary);
-            border-radius: 50%;
+        
+        .header .logout-btn {
+            background: none;
+            border: none;
+            color: var(--color-primary);
+            font-size: 1em;
             cursor: pointer;
+            font-weight: 600;
         }
+        .header .search-bar {
+            flex-grow: 1;
+            margin: 0 10px;
+            padding: 8px 15px;
+            border-radius: 20px;
+            border: 1px solid #ddd;
+        }
+
         .map-section {
             position: relative;
             flex-grow: 1;
-            background-image: url('https://via.placeholder.com/600x800/e0e0e0/808080?text=Custom+Styled+Map');
             background-size: cover;
             background-position: center;
+            opacity: 0.8;
+            transition: background-image 0.5s ease;
         }
         .producer-icon {
             position: absolute;
@@ -140,7 +151,13 @@
             font-size: 1.5em;
             color: white;
         }
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
 
+        /* --- 3D Pop-up Effect --- */
         .bottom-panel {
             position: absolute;
             bottom: 0;
@@ -151,11 +168,13 @@
             border-top-right-radius: 20px;
             padding: 20px;
             box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.1);
-            transform: translateY(100%);
-            transition: transform 0.5s ease-in-out;
+            transform-origin: bottom;
+            transform: translateY(100%) rotateX(90deg) scale(0.9);
+            transition: transform 0.5s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+            z-index: 10;
         }
         .bottom-panel.active {
-            transform: translateY(0);
+            transform: translateY(0) rotateX(0deg) scale(1);
         }
         .panel-header {
             display: flex;
@@ -192,27 +211,217 @@
             cursor: pointer;
         }
 
-        @keyframes pulse {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.1); }
-            100% { transform: scale(1); }
+        /* --- Producer View Styles --- */
+        .producer-view {
+            display: none;
+            flex-direction: column;
+            padding: 20px;
+            height: 100%;
+        }
+
+        .producer-view h2 {
+            color: var(--color-primary);
+            margin-top: 0;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        .producer-form-container {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+        .input-group {
+            width: 100%;
+            margin-bottom: 20px;
+        }
+        .input-group label {
+            display: block;
+            margin-bottom: 5px;
+            color: var(--color-text);
+        }
+        .input-group input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            box-sizing: border-box;
+        }
+        .submit-button {
+            background-color: var(--color-primary);
+            color: white;
+            border: none;
+            padding: 15px 0;
+            border-radius: 30px;
+            font-size: 1.1em;
+            font-weight: 600;
+            cursor: pointer;
+            width: 100%;
+        }
+        .submit-button:hover {
+            opacity: 0.9;
+        }
+        .producer-nav {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            justify-content: center;
+        }
+        .producer-nav-btn {
+            background: none;
+            border: 1px solid var(--color-primary);
+            color: var(--color-primary);
+            padding: 10px 20px;
+            border-radius: 25px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        .producer-nav-btn.active {
+            background-color: var(--color-primary);
+            color: white;
+        }
+
+        .back-button {
+            background: none;
+            border: none;
+            color: var(--color-text);
+            font-size: 1em;
+            cursor: pointer;
+            font-weight: 600;
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            z-index: 20;
+        }
+        
+        /* New Profile View Styles */
+        .profile-view {
+            display: none;
+            flex-direction: column;
+            padding: 20px;
+            height: 100%;
+            align-items: center;
+            justify-content: flex-start;
+            overflow-y: auto;
+        }
+        .profile-card {
+            background-color: var(--color-background);
+            border-radius: 15px;
+            padding: 25px;
+            text-align: center;
+            width: 100%;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            margin-top: 50px;
+        }
+        .profile-image {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin-bottom: 10px;
+            border: 3px solid var(--color-primary);
+        }
+        .profile-card h2 {
+            margin: 5px 0;
+            color: var(--color-text);
+        }
+        .profile-card p {
+            font-size: 0.9em;
+            color: #777;
+        }
+        .rating-stars {
+            color: var(--color-accent);
+            font-size: 1.2em;
+        }
+        .reviews-section {
+            width: 100%;
+            margin-top: 30px;
+        }
+        .reviews-section h3 {
+            color: var(--color-primary);
+            margin-bottom: 15px;
+            text-align: left;
+        }
+        .review-item {
+            background-color: #f9f9f9;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 10px;
+        }
+        .review-item .review-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .review-item .review-header span {
+            font-weight: bold;
+        }
+        
+        /* Inventory Manager Styles */
+        #inventoryManager {
+            width: 100%;
+            display: none; /* Initially hidden */
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+            flex-grow: 1;
+            justify-content: flex-start;
+            padding-top: 20px;
+        }
+        .inventory-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+            padding: 10px 15px;
+            background-color: #f9f9f9;
+            border-radius: 10px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+        .inventory-item span {
+            flex-grow: 1;
+            font-weight: 600;
+        }
+        .inventory-actions {
+            display: flex;
+            gap: 10px;
+        }
+        .inventory-actions button {
+            background-color: #e0e0e0;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .inventory-actions .delete-btn {
+            background-color: #dc3545;
+            color: white;
+        }
+        .inventory-actions .stock-btn {
+            background-color: #ffc107;
+            color: white;
+        }
+        .inventory-actions .stock-btn.out-of-stock {
+            background-color: #dc3545;
         }
     </style>
 </head>
 <body>
 
 <div class="app-container">
-    <div class="login-screen">
+    <div class="login-screen" id="loginScreen">
         <h1>Greeloc</h1>
         <p>The fastest way to get local, fresh produce.</p>
         <button class="login-button vendor" id="loginVendor">Login as Vendor</button>
         <button class="login-button producer" id="loginProducer">Login as Producer</button>
     </div>
 
-    <div class="main-app" style="display:none;">
+    <div class="main-app" id="mainApp" style="display:none;">
         <div class="header">
             <h1>Greeloc</h1>
-            <div class="profile-icon"></div>
+            <input type="text" id="searchBar" class="search-bar" placeholder="Search for produce...">
+            <button class="logout-btn" id="logoutVendor">Log Out</button>
         </div>
         <div class="map-section" id="map">
             </div>
@@ -224,92 +433,333 @@
                 </ul>
         </div>
     </div>
+
+    <div class="producer-view" id="producerView">
+        <button class="back-button" id="backProducer">Back</button>
+        <div class="header" style="background-color:transparent;box-shadow:none;">
+            <h1>Greeloc</h1>
+        </div>
+        <div class="producer-nav">
+            <button class="producer-nav-btn active" id="uploadBtn">Upload</button>
+            <button class="producer-nav-btn" id="inventoryBtn">My Inventory</button>
+        </div>
+        <div id="uploadForm" class="producer-form-container">
+            <h2>Upload Your Harvest</h2>
+            <div class="input-group">
+                <label for="productName">Product Name</label>
+                <input type="text" id="productName" placeholder="e.g., Organic Tomatoes">
+            </div>
+            <div class="input-group">
+                <label for="productQuantity">Quantity</label>
+                <input type="text" id="productQuantity" placeholder="e.g., 2kg, 5 bunches">
+            </div>
+            <div class="input-group">
+                <label for="productPrice">Price</label>
+                <input type="text" id="productPrice" placeholder="e.g., $4.50, ₹100">
+            </div>
+            <button class="submit-button" id="submitProduct">Submit</button>
+        </div>
+        <div id="inventoryManager" style="display:none;">
+            <h2>My Inventory</h2>
+            <ul id="inventoryList" style="width: 100%; list-style: none; padding: 0;">
+                </ul>
+        </div>
+    </div>
+    
+    <div class="profile-view" id="profileView" style="display:none;">
+        <button class="back-button" id="backToMapFromProfile">&lt;</button>
+        <div class="profile-card">
+            <img src="https://via.placeholder.com/100" alt="Profile Picture" class="profile-image">
+            <h2 id="profileName"></h2>
+            <div class="rating-stars">
+                <span>★</span><span>★</span><span>★</span><span>★</span><span>☆</span>
+            </div>
+            <p>Passionate micro-farmer providing fresh, seasonal produce to the local community.</p>
+        </div>
+        <div class="reviews-section">
+            <h3>Recent Reviews</h3>
+            <div class="review-item">
+                <div class="review-header">
+                    <span>Vendor Alex</span>
+                    <div class="rating-stars">★★★★★</div>
+                </div>
+                <p>"The carrots were so fresh and delicious. Great service!"</p>
+            </div>
+            <div class="review-item">
+                <div class="review-header">
+                    <span>Priya R.</span>
+                    <div class="rating-stars">★★★★☆</div>
+                </div>
+                <p>"Good quality tomatoes, would definitely buy again."</p>
+            </div>
+        </div>
+    </div>
+
 </div>
 
 <script>
-    // --- Login and App View Logic ---
-    const loginScreen = document.querySelector('.login-screen');
-    const mainApp = document.querySelector('.main-app');
-    const loginButtons = document.querySelectorAll('.login-button');
+    // --- Temporary Data Storage for Prototype ---
+    let uploadedProducts = [];
+    let allProducts = [];
+    
+    // --- Background Images for Dynamic Map ---
+    const backgrounds = [
+        'https://images.unsplash.com/photo-1543884393-e18e00199e4f?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
+        'https://images.unsplash.com/photo-1628172909401-443b71f985a9?q=80&w=1935&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
+        'https://images.unsplash.com/photo-1598439160538-3485c2c1995a?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
+        'https://images.unsplash.com/photo-1601053157523-2884d56d11f1?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
+        'https://images.unsplash.com/photo-1588661879155-20150d18d451?q=80&w=1935&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D'
+    ];
+    
+    // --- Screen Navigation Logic ---
+    const loginScreen = document.getElementById('loginScreen');
+    const mainApp = document.getElementById('mainApp');
+    const producerView = document.getElementById('producerView');
+    const profileView = document.getElementById('profileView');
+    const uploadForm = document.getElementById('uploadForm');
+    const inventoryManager = document.getElementById('inventoryManager');
+    const searchBar = document.getElementById('searchBar');
 
-    loginButtons.forEach(button => {
-        button.addEventListener('click', () => {
-            loginScreen.classList.add('hidden');
-            setTimeout(() => {
-                loginScreen.style.display = 'none';
-                mainApp.style.display = 'flex';
-                // Initialize the map with producers after login
-                generateProducers();
-            }, 500);
-        });
+    function showScreen(screen) {
+        loginScreen.style.display = 'none';
+        mainApp.style.display = 'none';
+        producerView.style.display = 'none';
+        profileView.style.display = 'none';
+        screen.style.display = 'flex';
+    }
+
+    document.getElementById('loginVendor').addEventListener('click', () => {
+        showScreen(mainApp);
+        const randomIndex = Math.floor(Math.random() * backgrounds.length);
+        document.getElementById('map').style.backgroundImage = `url('${backgrounds[randomIndex]}')`;
+        generateProducers();
     });
 
-    // --- Dynamic Producer Generation and Map Logic ---
-    const map = document.getElementById('map');
-    const bottomPanel = document.getElementById('bottomPanel');
-    const panelHeader = document.getElementById('panelHeader');
-    const panelList = document.getElementById('panelList');
+    document.getElementById('loginProducer').addEventListener('click', () => {
+        showScreen(producerView);
+        document.getElementById('uploadBtn').classList.add('active');
+        document.getElementById('inventoryBtn').classList.remove('active');
+        uploadForm.style.display = 'flex';
+        inventoryManager.style.display = 'none';
+    });
 
+    // --- Back/Logout Buttons ---
+    document.getElementById('backProducer').addEventListener('click', () => {
+        showScreen(loginScreen);
+    });
+
+    document.getElementById('logoutVendor').addEventListener('click', () => {
+        showScreen(loginScreen);
+    });
+    
+    document.getElementById('backToMapFromProfile').addEventListener('click', () => {
+        showScreen(mainApp);
+    });
+
+
+    // --- Producer Navigation Buttons ---
+    document.getElementById('uploadBtn').addEventListener('click', () => {
+        document.getElementById('uploadBtn').classList.add('active');
+        document.getElementById('inventoryBtn').classList.remove('active');
+        uploadForm.style.display = 'flex';
+        inventoryManager.style.display = 'none';
+    });
+
+    document.getElementById('inventoryBtn').addEventListener('click', () => {
+        document.getElementById('inventoryBtn').classList.add('active');
+        document.getElementById('uploadBtn').classList.remove('active');
+        uploadForm.style.display = 'none';
+        inventoryManager.style.display = 'flex';
+        renderInventory();
+    });
+    
+    // --- Producer View Logic ---
+    document.getElementById('submitProduct').addEventListener('click', () => {
+        const productName = document.getElementById('productName').value;
+        const productQuantity = document.getElementById('productQuantity').value;
+        const productPrice = document.getElementById('productPrice').value;
+
+        if (productName && productQuantity && productPrice) {
+            uploadedProducts.push({
+                name: productName,
+                quantity: productQuantity,
+                price: productPrice,
+                location: { top: Math.random() * 80 + 10, left: Math.random() * 80 + 10 },
+                supplierName: "My Urban Farm",
+                status: 'in-stock'
+            });
+            alert('Product uploaded successfully! Log in as a vendor to see it on the map.');
+            document.getElementById('productName').value = '';
+            document.getElementById('productQuantity').value = '';
+            document.getElementById('productPrice').value = '';
+        } else {
+            alert('Please fill out all fields.');
+        }
+    });
+
+    // --- Inventory Manager Logic ---
+    function renderInventory() {
+        const inventoryList = document.getElementById('inventoryList');
+        inventoryList.innerHTML = '';
+        if (uploadedProducts.length === 0) {
+            inventoryList.innerHTML = '<p style="text-align:center;">You have no items in your inventory.</p>';
+            return;
+        }
+
+        uploadedProducts.forEach((product, index) => {
+            const item = document.createElement('li');
+            item.classList.add('inventory-item');
+            item.innerHTML = `
+                <span>${product.name} (${product.quantity})</span>
+                <div class="inventory-actions">
+                    <button class="stock-btn" data-index="${index}">${product.status === 'in-stock' ? 'Out of Stock' : 'In Stock'}</button>
+                    <button class="delete-btn" data-index="${index}">Delete</button>
+                </div>
+            `;
+            inventoryList.appendChild(item);
+        });
+
+        document.querySelectorAll('.stock-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const index = e.target.dataset.index;
+                uploadedProducts[index].status = uploadedProducts[index].status === 'in-stock' ? 'out-of-stock' : 'in-stock';
+                e.target.textContent = uploadedProducts[index].status === 'in-stock' ? 'Out of Stock' : 'In Stock';
+            });
+        });
+
+        document.querySelectorAll('.delete-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const index = e.target.dataset.index;
+                uploadedProducts.splice(index, 1);
+                renderInventory(); // Re-render the list
+            });
+        });
+    }
+
+    // --- Dynamic Producer Generation and Map Logic (Vendor View) ---
     const producerNames = [
-        "The Honest Garden", "Sunita's Micro-Farm", "Urban Sprout",
-        "Community Harvest", "The Humble Acre", "Rohan's Garden",
-        "Backyard Bounty", "GreenThumb Growers", "The Local Patch"
+        "Oak Avenue Community Garden", "Maple Street Farm", "Greenfield Community Hub",
+        "Harmony Village Plot", "Riverside Gardens", "The Old Mill Farmers",
+        "Central Park Greens", "Sunshine Farms Co-op", "Kowkur Community Farm",
+        "Gandhi Nagar Garden", "Urban Greens Collective", "The Honest Patch",
+        "Shanti Nagar Urban Garden", "Sunrise Orchards", "The Backyard Bounty Guild"
     ];
 
     const producerItems = [
-        "Organic Tomatoes (2kg)", "Fresh Strawberries (1kg)", "Lettuce (5 heads)",
-        "Carrots (3kg)", "Zucchini (1kg)", "Spinach (5 bunches)",
-        "Avocados (4 pieces)", "Free-Range Eggs (1 dozen)", "Bell Peppers (6 pieces)"
+        "Organic Tomatoes - $2/kg", "Fresh Strawberries - $5/kg", "Lettuce - $1.50/head",
+        "Carrots - $2/kg", "Zucchini - $1/kg", "Spinach - $3/bunch",
+        "Avocados - $1 each", "Free-Range Eggs - $4/dozen", "Bell Peppers - $3/kg",
+        "Potatoes - $5/kg", "Onions - $3/kg", "Cilantro - $1/bunch",
+        "Basil - $2/bunch", "Mint - $1/bunch", "Lemons - $1 each", "Mangoes (1kg) - $4/kg"
     ];
-
+    
     function getRandomItem(arr) {
         return arr[Math.floor(Math.random() * arr.length)];
     }
 
+    // Global variable to hold all producers
+    let allProducers = [];
+    
     function generateProducers() {
-        const numProducers = Math.floor(Math.random() * 5) + 3; // 3 to 7 producers
-        
-        // Clear any existing producers
+        const map = document.getElementById('map');
         map.innerHTML = '';
+        allProducers = []; // Reset the list
         
-        for (let i = 0; i < numProducers; i++) {
-            const top = Math.random() * 80 + 10;
-            const left = Math.random() * 80 + 10;
-            const supplierName = getRandomItem(producerNames);
-            
-            // Get 2-3 random items for each producer
-            const items = new Set();
-            for (let j = 0; j < Math.floor(Math.random() * 2) + 2; j++) {
-                items.add(getRandomItem(producerItems));
-            }
-            const itemsString = Array.from(items).join(', ');
+        // Add uploaded products to the list
+        uploadedProducts.forEach(p => {
+             const icon = createProducerIcon(p);
+             if (p.status === 'in-stock') {
+                 map.appendChild(icon);
+             }
+             allProducers.push(p);
+        });
 
-            const icon = document.createElement('div');
-            icon.classList.add('producer-icon');
-            icon.style.top = `${top}%`;
-            icon.style.left = `${left}%`;
-            icon.dataset.supplier = supplierName;
-            icon.dataset.items = itemsString;
-            icon.innerHTML = `<span class="producer-icon-inner">🌱</span>`;
-            map.appendChild(icon);
+        // Add default products to the list
+        if (uploadedProducts.length === 0) {
+            const numDefaultProducers = Math.floor(Math.random() * 4) + 2;
+            for (let i = 0; i < numDefaultProducers; i++) {
+                const supplierName = getRandomItem(producerNames);
+                const items = new Set();
+                for (let j = 0; j < Math.floor(Math.random() * 2) + 2; j++) {
+                    items.add(getRandomItem(producerItems));
+                }
+                const itemsString = Array.from(items).join(', ');
+                const defaultProduct = {
+                    name: 'Default Product',
+                    quantity: 'N/A',
+                    price: 'N/A',
+                    supplierName: supplierName,
+                    items: itemsString,
+                    status: 'in-stock',
+                    location: { top: Math.random() * 80 + 10, left: Math.random() * 80 + 10 }
+                };
+                const icon = createProducerIcon(defaultProduct);
+                map.appendChild(icon);
+                allProducers.push(defaultProduct);
+            }
         }
         
-        // Re-attach event listeners to the newly created icons
         attachEventListeners();
     }
+    
+    function createProducerIcon(product) {
+        const icon = document.createElement('div');
+        icon.classList.add('producer-icon');
+        icon.style.top = `${product.location.top}%`;
+        icon.style.left = `${product.location.left}%`;
+        icon.dataset.supplier = product.supplierName;
+        icon.dataset.items = product.items || `${product.name} (${product.quantity}) - ${product.price}`;
+        icon.innerHTML = `<span class="producer-icon-inner">🌱</span>`;
+        return icon;
+    }
+    
+    // --- Search functionality ---
+    searchBar.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+            const query = e.target.value.toLowerCase();
+            const map = document.getElementById('map');
+            map.innerHTML = '';
+            bottomPanel.classList.remove('active');
+            
+            const filteredProducts = allProducers.filter(p => 
+                p.status === 'in-stock' && (
+                    (p.items && p.items.toLowerCase().includes(query)) ||
+                    (p.name && p.name.toLowerCase().includes(query))
+                )
+            );
+            
+            if (filteredProducts.length > 0) {
+                filteredProducts.forEach(product => {
+                    const icon = createProducerIcon(product);
+                    map.appendChild(icon);
+                });
+                attachEventListeners();
+            } else {
+                map.innerHTML = '<p style="text-align: center; color: var(--color-text); position: absolute; top: 50%; width: 100%; transform: translateY(-50%);">No results found.</p>';
+            }
+        }
+    });
 
     function attachEventListeners() {
         const icons = document.querySelectorAll('.producer-icon');
+        const bottomPanel = document.getElementById('bottomPanel');
+        const panelHeader = document.getElementById('panelHeader');
+        const panelList = document.getElementById('panelList');
+        const profileNameHeader = document.getElementById('profileNameHeader');
+        const profileName = document.getElementById('profileName');
+
         icons.forEach(icon => {
             icon.addEventListener('click', (event) => {
                 event.stopPropagation();
                 const supplier = icon.dataset.supplier;
                 const items = icon.dataset.items.split(',').map(item => {
-                    const [name, quantity] = item.trim().split(/\s+\(([^)]+)\)/);
+                    const parts = item.trim().split(' - ');
+                    const name = parts[0];
+                    const price = parts[1];
                     return `
                         <li>
                             <span>${name.trim()}</span>
-                            <button class="buy-button">Buy ${quantity || 'Now'}</button>
+                            <button class="buy-button">${price}</button>
                         </li>
                     `;
                 }).join('');
@@ -317,11 +767,16 @@
                 panelHeader.innerHTML = `<span>${supplier}</span>`;
                 panelList.innerHTML = items;
                 bottomPanel.classList.add('active');
+                
+                panelHeader.addEventListener('click', () => {
+                    profileNameHeader.textContent = supplier;
+                    profileName.textContent = supplier;
+                    showScreen(profileView);
+                }, { once: true });
             });
         });
 
-        // Close panel when clicking on the map
-        map.addEventListener('click', (event) => {
+        document.getElementById('map').addEventListener('click', (event) => {
             if (bottomPanel.classList.contains('active')) {
                 bottomPanel.classList.remove('active');
             }
