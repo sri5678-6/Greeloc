@@ -1,0 +1,788 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Greeloc App Prototype</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --color-primary: #508C5C; /* Earthy Green */
+            --color-background: #F2F4E6; /* Soft Cream */
+            --color-text: #4D3D3D; /* Rich Brown */
+            --color-accent: #FDBE2A; /* Sun Yellow */
+        }
+        body {
+            font-family: 'Poppins', sans-serif;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background-color: var(--color-background);
+            color: var(--color-text);
+        }
+        .app-container {
+            width: 375px;
+            height: 667px;
+            background-color: white;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            position: relative;
+        }
+        
+        /* --- Login Screen Styles --- */
+        .login-screen {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100%;
+            background-color: var(--color-background);
+            padding: 20px;
+            text-align: center;
+            transition: transform 0.5s ease-in-out;
+        }
+        .login-screen.hidden {
+            transform: translateY(-100%);
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+        }
+        .login-screen h1 {
+            color: var(--color-primary);
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+        .login-screen p {
+            color: var(--color-text);
+            margin-bottom: 30px;
+            font-weight: 400;
+        }
+        .login-button {
+            width: 80%;
+            padding: 15px 0;
+            margin: 10px 0;
+            border: none;
+            border-radius: 30px;
+            font-size: 1.1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        .login-button.vendor {
+            background-color: var(--color-primary);
+            color: white;
+        }
+        .login-button.producer {
+            background-color: var(--color-text);
+            color: white;
+        }
+        .login-button:hover {
+            opacity: 0.9;
+        }
+
+        /* --- Main App (Vendor/Map) Interface Styles --- */
+        .main-app {
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px;
+            background-color: white;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+            z-index: 10;
+        }
+        .header h1 {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: var(--color-primary);
+        }
+        
+        .header .logout-btn {
+            background: none;
+            border: none;
+            color: var(--color-primary);
+            font-size: 1em;
+            cursor: pointer;
+            font-weight: 600;
+        }
+        .header .search-bar {
+            flex-grow: 1;
+            margin: 0 10px;
+            padding: 8px 15px;
+            border-radius: 20px;
+            border: 1px solid #ddd;
+        }
+
+        .map-section {
+            position: relative;
+            flex-grow: 1;
+            background-size: cover;
+            background-position: center;
+            opacity: 0.8;
+            transition: background-image 0.5s ease;
+        }
+        .producer-icon {
+            position: absolute;
+            width: 45px;
+            height: 45px;
+            background-color: var(--color-primary);
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+            border: 3px solid white;
+            cursor: pointer;
+            transition: transform 0.2s ease-in-out;
+            animation: pulse 1.5s infinite;
+        }
+        .producer-icon:hover {
+            transform: scale(1.1);
+        }
+        .producer-icon-inner {
+            font-size: 1.5em;
+            color: white;
+        }
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+
+        /* --- 3D Pop-up Effect --- */
+        .bottom-panel {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background-color: white;
+            border-top-left-radius: 20px;
+            border-top-right-radius: 20px;
+            padding: 20px;
+            box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.1);
+            transform-origin: bottom;
+            transform: translateY(100%) rotateX(90deg) scale(0.9);
+            transition: transform 0.5s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+            z-index: 10;
+        }
+        .bottom-panel.active {
+            transform: translateY(0) rotateX(0deg) scale(1);
+        }
+        .panel-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 1.2em;
+            font-weight: bold;
+            color: var(--color-text);
+            margin-bottom: 15px;
+        }
+        .panel-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        .panel-list li {
+            padding: 15px 0;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: 400;
+        }
+        .panel-list li:last-child {
+            border-bottom: none;
+        }
+        .buy-button {
+            background-color: var(--color-accent);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 25px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        /* --- Producer View Styles --- */
+        .producer-view {
+            display: none;
+            flex-direction: column;
+            padding: 20px;
+            height: 100%;
+        }
+
+        .producer-view h2 {
+            color: var(--color-primary);
+            margin-top: 0;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        .producer-form-container {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+        .input-group {
+            width: 100%;
+            margin-bottom: 20px;
+        }
+        .input-group label {
+            display: block;
+            margin-bottom: 5px;
+            color: var(--color-text);
+        }
+        .input-group input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            box-sizing: border-box;
+        }
+        .submit-button {
+            background-color: var(--color-primary);
+            color: white;
+            border: none;
+            padding: 15px 0;
+            border-radius: 30px;
+            font-size: 1.1em;
+            font-weight: 600;
+            cursor: pointer;
+            width: 100%;
+        }
+        .submit-button:hover {
+            opacity: 0.9;
+        }
+        .producer-nav {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            justify-content: center;
+        }
+        .producer-nav-btn {
+            background: none;
+            border: 1px solid var(--color-primary);
+            color: var(--color-primary);
+            padding: 10px 20px;
+            border-radius: 25px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        .producer-nav-btn.active {
+            background-color: var(--color-primary);
+            color: white;
+        }
+
+        .back-button {
+            background: none;
+            border: none;
+            color: var(--color-text);
+            font-size: 1em;
+            cursor: pointer;
+            font-weight: 600;
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            z-index: 20;
+        }
+        
+        /* New Profile View Styles */
+        .profile-view {
+            display: none;
+            flex-direction: column;
+            padding: 20px;
+            height: 100%;
+            align-items: center;
+            justify-content: flex-start;
+            overflow-y: auto;
+        }
+        .profile-card {
+            background-color: var(--color-background);
+            border-radius: 15px;
+            padding: 25px;
+            text-align: center;
+            width: 100%;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            margin-top: 50px;
+        }
+        .profile-image {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin-bottom: 10px;
+            border: 3px solid var(--color-primary);
+        }
+        .profile-card h2 {
+            margin: 5px 0;
+            color: var(--color-text);
+        }
+        .profile-card p {
+            font-size: 0.9em;
+            color: #777;
+        }
+        .rating-stars {
+            color: var(--color-accent);
+            font-size: 1.2em;
+        }
+        .reviews-section {
+            width: 100%;
+            margin-top: 30px;
+        }
+        .reviews-section h3 {
+            color: var(--color-primary);
+            margin-bottom: 15px;
+            text-align: left;
+        }
+        .review-item {
+            background-color: #f9f9f9;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 10px;
+        }
+        .review-item .review-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .review-item .review-header span {
+            font-weight: bold;
+        }
+        
+        /* Inventory Manager Styles */
+        #inventoryManager {
+            width: 100%;
+            display: none; /* Initially hidden */
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+            flex-grow: 1;
+            justify-content: flex-start;
+            padding-top: 20px;
+        }
+        .inventory-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+            padding: 10px 15px;
+            background-color: #f9f9f9;
+            border-radius: 10px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+        .inventory-item span {
+            flex-grow: 1;
+            font-weight: 600;
+        }
+        .inventory-actions {
+            display: flex;
+            gap: 10px;
+        }
+        .inventory-actions button {
+            background-color: #e0e0e0;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .inventory-actions .delete-btn {
+            background-color: #dc3545;
+            color: white;
+        }
+        .inventory-actions .stock-btn {
+            background-color: #ffc107;
+            color: white;
+        }
+        .inventory-actions .stock-btn.out-of-stock {
+            background-color: #dc3545;
+        }
+    </style>
+</head>
+<body>
+
+<div class="app-container">
+    <div class="login-screen" id="loginScreen">
+        <h1>Greeloc</h1>
+        <p>The fastest way to get local, fresh produce.</p>
+        <button class="login-button vendor" id="loginVendor">Login as Vendor</button>
+        <button class="login-button producer" id="loginProducer">Login as Producer</button>
+    </div>
+
+    <div class="main-app" id="mainApp" style="display:none;">
+        <div class="header">
+            <h1>Greeloc</h1>
+            <input type="text" id="searchBar" class="search-bar" placeholder="Search for produce...">
+            <button class="logout-btn" id="logoutVendor">Log Out</button>
+        </div>
+        <div class="map-section" id="map">
+            </div>
+        <div class="bottom-panel" id="bottomPanel">
+            <div class="panel-header" id="panelHeader">
+                <span>Available from Nearby</span>
+            </div>
+            <ul class="panel-list" id="panelList">
+                </ul>
+        </div>
+    </div>
+
+    <div class="producer-view" id="producerView">
+        <button class="back-button" id="backProducer">Back</button>
+        <div class="header" style="background-color:transparent;box-shadow:none;">
+            <h1>Greeloc</h1>
+        </div>
+        <div class="producer-nav">
+            <button class="producer-nav-btn active" id="uploadBtn">Upload</button>
+            <button class="producer-nav-btn" id="inventoryBtn">My Inventory</button>
+        </div>
+        <div id="uploadForm" class="producer-form-container">
+            <h2>Upload Your Harvest</h2>
+            <div class="input-group">
+                <label for="productName">Product Name</label>
+                <input type="text" id="productName" placeholder="e.g., Organic Tomatoes">
+            </div>
+            <div class="input-group">
+                <label for="productQuantity">Quantity</label>
+                <input type="text" id="productQuantity" placeholder="e.g., 2kg, 5 bunches">
+            </div>
+            <div class="input-group">
+                <label for="productPrice">Price</label>
+                <input type="text" id="productPrice" placeholder="e.g., $4.50, ₹100">
+            </div>
+            <div class="input-group">
+                <label for="placeName">Place Name</label>
+                <input type="text" id="placeName" placeholder="e.g., My Urban Farm">
+            </div>
+            <button class="submit-button" id="submitProduct">Submit</button>
+        </div>
+        <div id="inventoryManager" style="display:none;">
+            <h2>My Inventory</h2>
+            <ul id="inventoryList" style="width: 100%; list-style: none; padding: 0;">
+                </ul>
+        </div>
+    </div>
+    
+    <div class="profile-view" id="profileView" style="display:none;">
+        <button class="back-button" id="backToMapFromProfile">&lt;</button>
+        <div class="profile-card">
+            <img src="https://via.placeholder.com/100" alt="Profile Picture" class="profile-image">
+            <h2 id="profileName"></h2>
+            <div class="rating-stars">
+                <span>★</span><span>★</span><span>★</span><span>★</span><span>☆</span>
+            </div>
+            <p>Passionate micro-farmer providing fresh, seasonal produce to the local community.</p>
+        </div>
+        <div class="reviews-section">
+            <h3>Recent Reviews</h3>
+            <div class="review-item">
+                <div class="review-header">
+                    <span>Vendor Alex</span>
+                    <div class="rating-stars">★★★★★</div>
+                </div>
+                <p>"The carrots were so fresh and delicious. Great service!"</p>
+            </div>
+            <div class="review-item">
+                <div class="review-header">
+                    <span>Priya R.</span>
+                    <div class="rating-stars">★★★★☆</div>
+                </div>
+                <p>"Good quality tomatoes, would definitely buy again."</p>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<script>
+    // --- Temporary Data Storage for Prototype ---
+    let uploadedProducts = [];
+    let allProducts = [];
+    
+    // --- Background Images for Dynamic Map ---
+    const backgrounds = [
+        'https://images.unsplash.com/photo-1543884393-e18e00199e4f?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
+        'https://images.unsplash.com/photo-1628172909401-443b71f985a9?q=80&w=1935&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
+        'https://images.unsplash.com/photo-1598439160538-3485c2c1995a?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
+        'https://images.unsplash.com/photo-1601053157523-2884d56d11f1?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
+        'https://images.unsplash.com/photo-1588661879155-20150d18d451?q=80&w=1935&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D'
+    ];
+    
+    // --- Screen Navigation Logic ---
+    const loginScreen = document.getElementById('loginScreen');
+    const mainApp = document.getElementById('mainApp');
+    const producerView = document.getElementById('producerView');
+    const profileView = document.getElementById('profileView');
+    const uploadForm = document.getElementById('uploadForm');
+    const inventoryManager = document.getElementById('inventoryManager');
+    const searchBar = document.getElementById('searchBar');
+
+    function showScreen(screen) {
+        loginScreen.style.display = 'none';
+        mainApp.style.display = 'none';
+        producerView.style.display = 'none';
+        profileView.style.display = 'none';
+        screen.style.display = 'flex';
+    }
+
+    document.getElementById('loginVendor').addEventListener('click', () => {
+        showScreen(mainApp);
+        const randomIndex = Math.floor(Math.random() * backgrounds.length);
+        document.getElementById('map').style.backgroundImage = `url('${backgrounds[randomIndex]}')`;
+        generateProducers();
+    });
+
+    document.getElementById('loginProducer').addEventListener('click', () => {
+        showScreen(producerView);
+        document.getElementById('uploadBtn').classList.add('active');
+        document.getElementById('inventoryBtn').classList.remove('active');
+        uploadForm.style.display = 'flex';
+        inventoryManager.style.display = 'none';
+    });
+
+    // --- Back/Logout Buttons ---
+    document.getElementById('backProducer').addEventListener('click', () => {
+        showScreen(loginScreen);
+    });
+
+    document.getElementById('logoutVendor').addEventListener('click', () => {
+        showScreen(loginScreen);
+    });
+    
+    document.getElementById('backToMapFromProfile').addEventListener('click', () => {
+        showScreen(mainApp);
+    });
+
+
+    // --- Producer Navigation Buttons ---
+    document.getElementById('uploadBtn').addEventListener('click', () => {
+        document.getElementById('uploadBtn').classList.add('active');
+        document.getElementById('inventoryBtn').classList.remove('active');
+        uploadForm.style.display = 'flex';
+        inventoryManager.style.display = 'none';
+    });
+
+    document.getElementById('inventoryBtn').addEventListener('click', () => {
+        document.getElementById('inventoryBtn').classList.add('active');
+        document.getElementById('uploadBtn').classList.remove('active');
+        uploadForm.style.display = 'none';
+        inventoryManager.style.display = 'flex';
+        renderInventory();
+    });
+    
+    // --- Producer View Logic ---
+    document.getElementById('submitProduct').addEventListener('click', () => {
+        const productName = document.getElementById('productName').value;
+        const productQuantity = document.getElementById('productQuantity').value;
+        const productPrice = document.getElementById('productPrice').value;
+        const placeName = document.getElementById('placeName').value;
+
+        if (productName && productQuantity && productPrice && placeName) {
+            uploadedProducts.push({
+                name: productName,
+                quantity: productQuantity,
+                price: productPrice,
+                location: { top: Math.random() * 80 + 10, left: Math.random() * 80 + 10 },
+                supplierName: placeName, // Use the new place name field
+                status: 'in-stock'
+            });
+            alert('Product uploaded successfully! Log in as a vendor to see it on the map.');
+            document.getElementById('productName').value = '';
+            document.getElementById('productQuantity').value = '';
+            document.getElementById('productPrice').value = '';
+            document.getElementById('placeName').value = '';
+        } else {
+            alert('Please fill out all fields.');
+        }
+    });
+
+    // --- Inventory Manager Logic ---
+    function renderInventory() {
+        const inventoryList = document.getElementById('inventoryList');
+        inventoryList.innerHTML = '';
+        if (uploadedProducts.length === 0) {
+            inventoryList.innerHTML = '<p style="text-align:center;">You have no items in your inventory.</p>';
+            return;
+        }
+
+        uploadedProducts.forEach((product, index) => {
+            const item = document.createElement('li');
+            item.classList.add('inventory-item');
+            item.innerHTML = `
+                <span>${product.name} (${product.quantity})</span>
+                <div class="inventory-actions">
+                    <button class="stock-btn" data-index="${index}">${product.status === 'in-stock' ? 'Out of Stock' : 'In Stock'}</button>
+                    <button class="delete-btn" data-index="${index}">Delete</button>
+                </div>
+            `;
+            inventoryList.appendChild(item);
+        });
+
+        document.querySelectorAll('.stock-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const index = e.target.dataset.index;
+                uploadedProducts[index].status = uploadedProducts[index].status === 'in-stock' ? 'out-of-stock' : 'in-stock';
+                e.target.textContent = uploadedProducts[index].status === 'in-stock' ? 'Out of Stock' : 'In Stock';
+            });
+        });
+
+        document.querySelectorAll('.delete-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const index = e.target.dataset.index;
+                uploadedProducts.splice(index, 1);
+                renderInventory(); // Re-render the list
+            });
+        });
+    }
+
+    // --- Dynamic Producer Generation and Map Logic (Vendor View) ---
+    const producerNames = [
+        "Oak Avenue Community Garden", "Maple Street Farm", "Greenfield Community Hub",
+        "Harmony Village Plot", "Riverside Gardens", "The Old Mill Farmers",
+        "Central Park Greens", "Sunshine Farms Co-op", "Kowkur Community Farm",
+        "Gandhi Nagar Garden", "Urban Greens Collective", "The Honest Patch",
+        "Shanti Nagar Urban Garden", "Sunrise Orchards", "The Backyard Bounty Guild"
+    ];
+
+    const producerItems = [
+        "Organic Tomatoes - $2/kg", "Fresh Strawberries - $5/kg", "Lettuce - $1.50/head",
+        "Carrots - $2/kg", "Zucchini - $1/kg", "Spinach - $3/bunch",
+        "Avocados - $1 each", "Free-Range Eggs - $4/dozen", "Bell Peppers - $3/kg",
+        "Potatoes - $5/kg", "Onions - $3/kg", "Cilantro - $1/bunch",
+        "Basil - $2/bunch", "Mint - $1/bunch", "Lemons - $1 each", "Mangoes (1kg) - $4/kg"
+    ];
+
+    function getRandomItem(arr) {
+        return arr[Math.floor(Math.random() * arr.length)];
+    }
+
+    let allProducers = [];
+    
+    function generateProducers() {
+        const map = document.getElementById('map');
+        map.innerHTML = '';
+        allProducers = [];
+        
+        uploadedProducts.filter(p => p.status === 'in-stock').forEach(p => {
+             const icon = createProducerIcon(p);
+             map.appendChild(icon);
+             allProducers.push(p);
+        });
+
+        if (allProducers.length === 0) {
+            const numDefaultProducers = Math.floor(Math.random() * 4) + 2;
+            for (let i = 0; i < numDefaultProducers; i++) {
+                const supplierName = getRandomItem(producerNames);
+                const items = new Set();
+                for (let j = 0; j < Math.floor(Math.random() * 2) + 2; j++) {
+                    items.add(getRandomItem(producerItems));
+                }
+                const itemsString = Array.from(items).join(', ');
+                const defaultProduct = {
+                    name: itemsString.split(' - ')[0],
+                    quantity: 'N/A',
+                    price: 'N/A',
+                    supplierName: supplierName,
+                    items: itemsString,
+                    status: 'in-stock',
+                    location: { top: Math.random() * 80 + 10, left: Math.random() * 80 + 10 }
+                };
+                const icon = createProducerIcon(defaultProduct);
+                map.appendChild(icon);
+                allProducers.push(defaultProduct);
+            }
+        }
+        
+        attachEventListeners();
+    }
+    
+    function createProducerIcon(product) {
+        const icon = document.createElement('div');
+        icon.classList.add('producer-icon');
+        icon.style.top = `${product.location.top}%`;
+        icon.style.left = `${product.location.left}%`;
+        icon.dataset.supplier = product.supplierName;
+        icon.dataset.items = product.items || `${product.name} (${product.quantity}) - ${product.price}`;
+        icon.innerHTML = `<span class="producer-icon-inner">🌱</span>`;
+        return icon;
+    }
+    
+    // --- Search functionality ---
+    searchBar.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+            const query = e.target.value.toLowerCase();
+            const map = document.getElementById('map');
+            map.innerHTML = '';
+            bottomPanel.classList.remove('active');
+            
+            const filteredProducts = allProducers.filter(p => {
+                const searchableText = `${p.items} ${p.name} ${p.supplierName}`.toLowerCase();
+                return p.status === 'in-stock' && searchableText.includes(query);
+            });
+            
+            if (filteredProducts.length > 0) {
+                filteredProducts.forEach(product => {
+                    const icon = createProducerIcon(product);
+                    map.appendChild(icon);
+                });
+                attachEventListeners();
+            } else {
+                map.innerHTML = '<p style="text-align: center; color: var(--color-text); position: absolute; top: 50%; width: 100%; transform: translateY(-50%);">No results found.</p>';
+            }
+        }
+    });
+
+    function attachEventListeners() {
+        const icons = document.querySelectorAll('.producer-icon');
+        const bottomPanel = document.getElementById('bottomPanel');
+        const panelHeader = document.getElementById('panelHeader');
+        const panelList = document.getElementById('panelList');
+        const profileNameHeader = document.getElementById('profileNameHeader');
+        const profileName = document.getElementById('profileName');
+
+        icons.forEach(icon => {
+            icon.addEventListener('click', (event) => {
+                event.stopPropagation();
+                const supplier = icon.dataset.supplier;
+                const items = icon.dataset.items.split(',').map(item => {
+                    const parts = item.trim().split(' - ');
+                    const name = parts[0];
+                    const price = parts[1];
+                    return `
+                        <li>
+                            <span>${name.trim()}</span>
+                            <button class="buy-button">${price}</button>
+                        </li>
+                    `;
+                }).join('');
+
+                panelHeader.innerHTML = `<span>${supplier}</span>`;
+                panelList.innerHTML = items;
+                bottomPanel.classList.add('active');
+                
+                panelHeader.addEventListener('click', () => {
+                    profileNameHeader.textContent = supplier;
+                    profileName.textContent = supplier;
+                    showScreen(profileView);
+                }, { once: true });
+            });
+        });
+
+        document.getElementById('map').addEventListener('click', (event) => {
+            if (bottomPanel.classList.contains('active')) {
+                bottomPanel.classList.remove('active');
+            }
+        });
+    }
+
+</script>
+
+</body>
+</html>
